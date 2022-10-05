@@ -1,0 +1,13 @@
+{
+  "CONSTANTS": {
+    "DEFAULT_OFFSET": 0,
+    "DEFAULT_LIMIT": 100,
+    "ERRORS": {
+    },
+    "RESPONSE_STATUSES": {
+      "SUCCESS": "success",
+      "FAIL": "fail",
+      "ERROR": "error"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "env": "NODE_ENV",
+  "port": "PORT",
+  "postgres": {
+    "database": "POSTGRES_DATABASE_NAME",
+    "user": "POSTGRES_DATABASE_USER",
+    "password": "POSTGRES_DATABASE_PASSWORD",
+    "host": "POSTGRES_DATABASE_HOST",
+    "port": "POSTGRES_DATABASE_PORT"
+  },
+  "admin": {
+    "password": "SUPER_USER_PASSWORD",
+    "email": "SUPER_USER_EMAIL",
+    "id": "SUPER_USER_ID"
+  },
+  "kafka": {
+    "kafkaHost": "KAFKA_HOST",
+    "defaultTimeout": "KAFKA_DEFAULT_TIMEOUT",
+    "connectionTimeout": "KAFKA_CONNECTION_TIMEOUT",
+    "initialRetryTime": "KAFKA_INITIAL_RETRY_TIME",
+    "maxRetryTime": "KAFKA_MAX_RETRY_TIME",
+    "maxWaitTimeInMs": "KAFKA_MAX_WAIT_IN_MS",
+    "retries": "KAFKA_RETRIES",
+    "replicationFactor": "KAFKA_REPLICATION_FACTOR",
+    "numPartitions": "KAFKA_NUM_PARTITIONS"
+  }
+}
