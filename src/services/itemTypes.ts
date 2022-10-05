@@ -5,84 +5,71 @@ import {
   NotFoundError
 } from "../types/CustomError";
 import { ItemType } from "../types/itemType";
+import * as ItemsService from './items'
 const { models } = require('../models');
 
 
-export default class ItemTypesService {
+export async function create({ name, needsRefrigeration }: Partial<ItemType>):Promise<ItemType> {
+  let itemType;
 
-  public static async create({ name, needsRefrigeration }: Partial<ItemType>):Promise<ItemType> {
-    let itemType;
-
-    try {
-      itemType = await models.ItemType.createOne({
-        name,
-        needsRefrigeration
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
-
-    return itemType;
+  try {
+    itemType = await models.ItemType.createOne({
+      name,
+      needsRefrigeration
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new UnexpectedError(error)
   }
 
-  public static async update({ id, name }: Partial<ItemType>):Promise<ItemType> {
-    let itemType;
+  return itemType;
+}
 
-    try {
-      itemType = await models.ItemType.findOne({
+export async function update({ id, name }: Partial<ItemType>):Promise<ItemType> {
+  let itemType;
+
+  try {
+    itemType = await models.ItemType.findOne({
+      id
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new NotFoundError(error)
+  }
+
+
+  try {
+    await itemType.update({
+      name
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new UnexpectedError(error)
+  }
+
+  return itemType;
+}
+
+export async function remove({ id }: Partial<ItemType>):Promise<ItemType> {
+  const items = await ItemsService.getListByType({
+    typeId: id
+  });
+
+  if (items?.count > 0) {
+    throw new UnexpectedError("CAN'T REMOVE NON EMPTY TYPE");
+  }
+
+  try {
+    await models.ItemType.destroy({
+      where: {
         id
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new NotFoundError(error)
-    }
+      }
+    })
 
-
-    try {
-      await itemType.update({
-        name
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
-
-    return itemType;
+  } catch (error) {
+    console.debug(error);
+    throw new UnexpectedError(error)
   }
 
-  public static async remove({ id }: Partial<ItemType>):Promise<ItemType> {
-    let itemType, items;
-
-    try {
-      items = await models.Item.findAndCountAll({
-        where: {
-          typeId: id
-        }
-      })
-
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
-
-    if (items?.count > 0) {
-      throw new UnexpectedError("CAN'T REMOVE NON EmPTY TYPE");
-    }
-
-    try {
-      items = await models.ItemType.destroy({
-        where: {
-          id
-        }
-      })
-
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
-
-    return items;
-  }
-
+  return {};
 }

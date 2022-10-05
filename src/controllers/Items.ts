@@ -1,6 +1,6 @@
 import config from "config";
 import { Context } from "koa"
-import ItemsService from "../services/items";
+import * as ItemsService from "../services/items";
 import { koaError } from "../middleware/erorHandler";
 
 const { RESPONSE_STATUSES } = config.get("CONSTANTS");

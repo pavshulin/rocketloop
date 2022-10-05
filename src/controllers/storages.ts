@@ -1,8 +1,7 @@
 import config from "config";
 import { Context } from "koa"
-import StoragesService from "../services/storages";
+import * as StoragesService from "../services/storages";
 import { koaError } from "../middleware/erorHandler";
-import ItemTypesService from "../services/itemTypes";
 
 const { RESPONSE_STATUSES } = config.get("CONSTANTS");
 
@@ -40,6 +39,24 @@ async function update(ctx: Context) {
   ctx.body = {
     status: RESPONSE_STATUSES.SUCCESS,
     data: storage.toJSON(),
+  };
+}
+
+async function getItemsList(ctx: Context) {
+  const { id } = ctx.params;
+  let items;
+
+  try {
+    items = await StoragesService.getItemsList({ id })
+  } catch (error) {
+    console.error(error);
+    return koaError(ctx, error)
+  }
+
+  ctx.status = 200;
+  ctx.body = {
+    status: RESPONSE_STATUSES.SUCCESS,
+    data: items,
   };
 }
 

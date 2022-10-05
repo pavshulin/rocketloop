@@ -6,8 +6,8 @@ import {
   ValidationError
 } from "../types/CustomError";
 import { ItemType } from "../types/itemType";
+import * as ItemsService from './items'
 const { models } = require('../models');
-
 interface createParameters {
   name: string,
   capacity: number,
@@ -19,47 +19,88 @@ interface updateParameters {
   name: string
 }
 
-export default class StorageService {
-  public static async create({ name, capacity, doesRefrigeration }: createParameters):Promise {
-    let storage;
+interface getOneByIdParams {
+  id: number
+}
 
-    try {
-      storage = await models.Storage.createOne({
-        name,
-        capacity,
-        doesRefrigeration
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
+interface isFullParameters {
+  id: number
+}
 
-    return storage;
+interface getItemsListParams {
+  id: number
+}
+
+export async function create({ name, capacity, doesRefrigeration }: createParameters):Promise {
+  let storage;
+
+  try {
+    storage = await models.Storage.createOne({
+      name,
+      capacity,
+      doesRefrigeration
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new UnexpectedError(error)
   }
 
-  public static async update({ id, name }: updateParameters):Promise {
-    let storage;
+  return storage;
+}
 
-    try {
-      storage = await models.Storage.findOne({
-        id
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new NotFoundError(error)
-    }
+export async function update({ id, name }: updateParameters):Promise {
+  let storage;
 
-
-    try {
-      await storage.update({
-        name
-      });
-    } catch (error) {
-      console.debug(error);
-      throw new UnexpectedError(error)
-    }
-
-    return storage;
+  try {
+    storage = await models.Storage.findOne({
+      id
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new NotFoundError(error)
   }
 
+
+  try {
+    await storage.update({
+      name
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new UnexpectedError(error)
+  }
+
+  return storage;
+}
+
+export async function getOneById({ id }: getOneByIdParams) {
+  let storage;
+
+  try {
+    storage = await models.Storage.findOne({
+      id
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new NotFoundError(error)
+  }
+
+  if (!storage) {
+    throw new NotFoundError("NOT FOUND")
+  }
+
+  return storage
+}
+
+
+export async function isFull({ id }: isFullParameters):Promise {
+  const storage = getOneById({ id });
+  const items = ItemsService.getListByStorage({ storageId: id })
+
+
+  return !(items?.count > storage.get('capacity'))
+}
+
+export async function getItemsList({ id }: getItemsListParams):Promise {
+  return ItemsService.getListByStorage({ storageId: id })
 }
