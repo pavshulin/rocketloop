@@ -50,7 +50,7 @@ export async function update({ id, name }: Partial<ItemType>):Promise<ItemType> 
   return itemType;
 }
 
-export async function remove({ id }: Partial<ItemType>):Promise<ItemType> {
+export async function remove({ id }: Partial<ItemType>) {
   const items = await ItemsService.getListByType({
     typeId: id
   });
@@ -72,4 +72,25 @@ export async function remove({ id }: Partial<ItemType>):Promise<ItemType> {
   }
 
   return {};
+}
+
+export async function getOneByName({ name }: Partial<ItemType>) {
+  let type;
+
+  try {
+    type = await models.ItemType.findOne({
+      where: {
+        name
+      }
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new NotFoundError(error)
+  }
+
+  if (!type) {
+    throw new NotFoundError("NOT FOUND")
+  }
+
+  return type
 }

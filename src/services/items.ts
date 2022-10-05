@@ -2,6 +2,7 @@ import config from "config";
 import moment from "moment";
 import * as StoragesService from './storages'
 import {
+  NotFoundError,
   UnexpectedError
 } from "../types/CustomError";
 const { models } = require('../models');
@@ -18,6 +19,10 @@ interface listByTypeParameters {
 
 interface getListByStorageParameters {
   storageId: number
+}
+
+interface getOneByNameParams {
+  name: string
 }
 
 export async function create({ expiresAt, storageName, typeName }: createParameters) {
@@ -42,7 +47,7 @@ export async function create({ expiresAt, storageName, typeName }: createParamet
     throw new UnexpectedError("CANNOT FIND STORAGE OR TYPE")
   }
 
-  if (StoragesService.isFull({id: storage.get('id')})) {
+  if (await StoragesService.isFull({id: storage.get('id')})) {
     throw new UnexpectedError("STORAGE IS FULL")
   }
 
@@ -64,7 +69,7 @@ export async function create({ expiresAt, storageName, typeName }: createParamet
   return item;
 }
 
-export async function getListByType ({ typeId }):listByTypeParameters {
+export async function getListByType ({ typeId }: listByTypeParameters) {
   let items
   try {
     items = await models.Item.findAndCountAll({
@@ -81,7 +86,28 @@ export async function getListByType ({ typeId }):listByTypeParameters {
   return items
 }
 
-export async function getListByStorage ({ storageId }):getListByStorageParameters {
+export async function getOneByName({ name }: getOneByNameParams) {
+  let type;
+
+  try {
+    type = await models.ItemType.findOne({
+      where: {
+        name
+      }
+    });
+  } catch (error) {
+    console.debug(error);
+    throw new NotFoundError(error)
+  }
+
+  if (!type) {
+    throw new NotFoundError("NOT FOUND")
+  }
+
+  return type
+}
+
+export async function getListByStorage ({ storageId }: getListByStorageParameters) {
   let items
   try {
     items = await models.Item.findAndCountAll({
